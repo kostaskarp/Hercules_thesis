@@ -15,7 +15,9 @@ target_dir_binned = "src/output_data/binned"
 
 def get_available_games():
     locations_data = os.listdir(target_dir_locations)
+    locations_data.remove(".gitkeep")
     events_data = os.listdir(target_dir_events)
+    events_data.remove(".gitkeep")
     games_from_events = pd.Series(events_data).apply(lambda x: x.split("_")[0])
     games_from_locations = pd.Series(locations_data).apply(lambda x: x.split("_")[0])
     if games_from_events.size != games_from_events.unique().size:

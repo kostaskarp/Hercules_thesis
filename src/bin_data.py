@@ -26,13 +26,13 @@ def bin_input_data(game_ids, target_dir_base, dt=5):
         team_ball_id = unique_players_per_team.where(unique_players_per_team == 1).dropna().index[0]
 
         # detecting the 2 goalkeepers
-        df = locations_df.copy(deep=True)
-        df.groupby(["Team", "Player_Name"]).agg({"Timestamp": min, "X": "mean"})
-        #mean_x_df = df.groupby(["Player_Name", "Team"])["X"].mean().abs()
-        #goal_keepers = mean_x_df.groupby("Team").max().drop(index=ball_id).index.values
+        #df = locations_df.copy(deep=True)
+        #df.groupby(["Team", "Player_Name"]).agg({"Timestamp": min, "X": "mean"})
 
         # separating first from second half for each player in the locations dataframe
         tmp_loc_df = pd.DataFrame()
+        recorded_end_first_period_stamps = []
+        recorded_start_second_period_stamps = []
         for player_id, group in locations_df.groupby("Player_Name"):
             clean_player_df = group.dropna().reset_index(drop=True)
             iis = np.arange(0, clean_player_df.shape[0] - 1)
@@ -44,20 +44,37 @@ def bin_input_data(game_ids, target_dir_base, dt=5):
                     np.repeat("First-half", clean_player_df.shape[0])
                 ).where(clean_player_df.index < separator_position, other="Second-half")
                 tmp_loc_df = pd.concat((tmp_loc_df, clean_player_df))
+                recorded_end_first_period_stamps.append(clean_player_df["Timestamp"][separator_position])
+                recorded_start_second_period_stamps.append(clean_player_df["Timestamp"][separator_position+1])
             except:
                 clean_player_df["Half_time"] = pd.Series(
                     np.repeat(pd.NA, clean_player_df.shape[0])
                 )
         locations_df = tmp_loc_df
 
+        # Below, we do the necesary preparations to apply the binning
         dt_ms = dt * 60.0 * 1000.0
         start_time = min(
             locations_df["Timestamp"].values[0], events_df["End_Ts (ms)"].values[0]
         )
+        end_of_half_time = np.min(np.array(recorded_end_first_period_stamps))
+        start_of_second_half = np.max(np.array(recorded_start_second_period_stamps))
         end_time = max(
             locations_df["Timestamp"].values[-1], events_df["End_Ts (ms)"].values[-1]
         )
-        dt_bins = np.arange(start_time, end_time, dt_ms)
+
+        # creating the tim bins for the first half
+        first_half_bins = np.arange(start_time,end_of_half_time,dt_ms)
+        if end_of_half_time > first_half_bins[-1]:
+            first_half_bins = np.append(first_half_bins, end_of_half_time)
+
+        # creating the bins for the second half
+        second_half_bins = np.arange(start_of_second_half, end_time, dt_ms)
+        if end_time > second_half_bins[-1]:
+            second_half_bins = np.append(second_half_bins, end_time)
+
+
+        dt_bins = np.concatenate((first_half_bins, second_half_bins))
 
         inds_locations = np.digitize(locations_df["Timestamp"].values, dt_bins)
         inds_events = np.digitize(events_df["End_Ts (ms)"].values, dt_bins)
@@ -77,7 +94,7 @@ def bin_input_data(game_ids, target_dir_base, dt=5):
                 t_bin_end = end_time
             player_dict = {
                 "Player": player_id,
-                "Time": f"[{t_bin_start/(60.*1000.0)},{t_bin_end / (60.0 * 1000.0)}]",
+                "Time": f"{t_bin_start/(60.*1000.0)}-{t_bin_end / (60.0 * 1000.0)}",
                 "Half-time": group_df["Half_time"].values[0]
             }
             output_dict = calculate_features(group_df, player_dict)
@@ -102,7 +119,7 @@ def bin_input_data(game_ids, target_dir_base, dt=5):
             cum_expected_goals = np.sum(np.array(goals))
             bin_dict = {
                 "Player": player_id,
-                "Time": f"[{t_bin_start/(60.*1000.0)},{t_bin_end / (60.0 * 1000.0)}]",
+                "Time": f"{t_bin_start/(60.*1000.0)}-{t_bin_end / (60.0 * 1000.0)}",
                 "Expected_goal": cum_expected_goals,
             }
             xpg_output_df = pd.concat((xpg_output_df, pd.DataFrame([bin_dict])))
@@ -114,5 +131,5 @@ def bin_input_data(game_ids, target_dir_base, dt=5):
             xpg_output_df, how="inner", on=["Player", "Time"]
         )
         final_merged_df.to_csv(
-            f"{target_dir_base}/{game_id}_{dt}minute.csv", index=False
+            f"{target_dir_base}/{game_id}_{dt}minute.csv", float_format="%.4f",index=False
         )

@@ -1,2 +1,14 @@
-input_data/events/*.csv
-input_data/locations/*.csv
+# exclude everything
+input_data/events/*
+input_data/locations/*
+output_data/binned/*
+output_data/expected_goals/*
+output_data/features/*
+
+
+# exception to the rule
+!input_data/events/.gitkeep
+!input_data/locations/.gitkeep
+!output_data/features/.gitkeep
+!output_data/expected_goals/.gitkeep
+!output_data/binned/.gitkeep
