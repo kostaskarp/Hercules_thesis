@@ -2,13 +2,13 @@
 input_data/events/*
 input_data/locations/*
 output_data/binned/*
-output_data/expected_goals/*
-output_data/features/*
+output_data/cumulative/*
+output_data/aggregated/*
 
 
 # exception to the rule
 !input_data/events/.gitkeep
 !input_data/locations/.gitkeep
-!output_data/features/.gitkeep
-!output_data/expected_goals/.gitkeep
 !output_data/binned/.gitkeep
+!output_data/cumulative/.gitkeep
+!output_data/aggregated/.gitkeep

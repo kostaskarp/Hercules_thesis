@@ -108,7 +108,7 @@ feature_functions = [
     calcHD_acctions,
     calcVHA_acctions,
     calcVHD_acctions,
-    #total_time_played,
+    total_time_played,
 ]
 
 

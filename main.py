@@ -5,13 +5,14 @@ import matplotlib.pyplot as plt
 
 import pandas as pd
 
-from src.analyse_locations_data import *
-from src.analyse_events_data import *
+from src.cumulative_calculation import *
 from src.bin_data import *
 
 target_dir_features_base = "src/output_data/features"
 target_dir_xpg_base = "src/output_data/expected_goals"
 target_dir_binned = "src/output_data/binned"
+target_dir_cumulative = "src/output_data/cumulative"
+target_dir_aggregated = "src/output_data/aggegated"
 
 def get_available_games():
     locations_data = os.listdir(target_dir_locations)
@@ -32,11 +33,9 @@ def get_available_games():
         return games_from_events
 
 
-
-
 if __name__ == "__main__":
 
-    # df = pd.read_csv(target_dir_binned+'/0118001ERE_5minute.csv')
+    # df = pd.read_csv(target_dir_binned+'/0118001ERE_5minute_old.csv')
     # grouped_df = df.groupby("Player")
     # for player, group_df in grouped_df:
     #     t = group_df["Time"]
@@ -51,9 +50,9 @@ if __name__ == "__main__":
 
     bin_input_data(game_ids, target_dir_binned, dt=5)
 
-    calculate_locations_metrics(game_ids, target_dir_features_base)
+    #calculate_locations_metrics(game_ids, target_dir_features_base)
 
-    calculate_expected_goals(game_ids, target_dir_xpg_base)
+    calculate_cumulative_goals(game_ids, target_dir_aggregated, target_dir_cumulative)
 
     # for game_id in game_ids:
     #     df = pd.read_csv(target_dir_locations + game_id + '_cleaned.csv')
