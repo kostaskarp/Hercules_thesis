@@ -127,6 +127,7 @@ def bin_input_data(game_ids, target_dir_base, dt=5):
                 "Player": player_id,
                 "Team": group_df["Team"].values[0],
                 "Time": f"{t_bin_start}-{t_bin_end}",
+                #"Game-time": f"",
                 "Half-time": group_df["Half_time"].values[0],
             }
             output_dict = calculate_features(group_df, player_dict)
@@ -160,7 +161,7 @@ def bin_input_data(game_ids, target_dir_base, dt=5):
         loc_output_df["Time"] = loc_output_df["Time"].astype(str)
 
         final_merged_df = loc_output_df.merge(
-            xpg_output_df, how="inner", on=["Player", "Time"]
+            xpg_output_df, how="outer", on=["Player", "Time"]
         )
 
         if not os.path.isdir(f"{target_dir_base}/{game_id}"):

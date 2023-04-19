@@ -47,7 +47,7 @@ def calculate_cumulative_goals(game_ids, target_dir_agg, target_dir_cum):
                 .index[0]
             )
         except:
-            raise SyntaxWarning("Ball ID was not detected..")
+            raise Warning("Ball ID was not detected..")
         locations_df = locations_df.set_index("Team").drop(index=team_ball_id).reset_index()
 
         print(f"Calculating expected goals for game {game_id} ...")
@@ -77,16 +77,6 @@ def calculate_cumulative_goals(game_ids, target_dir_agg, target_dir_cum):
 
         cum_exp_goal = expected_goal_df.groupby("Player")["expGoal"].sum()
         features_df["Expected_goals"] = features_df["Player"].map(cum_exp_goal)
-
-        # # detecting the id of the ball
-        # unique_players_per_team = locations_df.groupby(["Team"])["Player_Name"].nunique()
-        # ball_id = unique_players_per_team.where(unique_players_per_team == 1).dropna().index[0]
-        #
-        # # detecting the 2 goalkeepers
-        # df = locations_df.copy(deep=True)
-        # mean_x_df = df.groupby(["Player_Name", "Team"])["X"].mean().abs()
-        # goal_keepers = mean_x_df.groupby("Team").max().drop(index=ball_id).index.values
-        # #mean_x_df.reset_index().set_index("Team").drop(index=ball_id)
 
         if not os.path.isdir(f"{target_dir_cum}/{game_id}"):
             os.makedirs(f"{target_dir_cum}/{game_id}")
