@@ -2,7 +2,7 @@ from src.bin_data import *
 
 target_dir_binned = "src/output_data/binned"
 target_dir_cumulative = "src/output_data/cumulative"
-target_dir_aggregated = "src/output_data/aggregated"
+# target_dir_aggregated = "src/output_data/aggregated"
 
 def get_available_games():
     locations_data = os.listdir(target_dir_locations)
@@ -31,9 +31,12 @@ if __name__ == "__main__":
     # The function below, applies an arbitrary binning (here dt = 5 minute) to the input data
     # for both locations and event files and also the metrics that were derived
     # based on them. It saves the outputs in the proper output_data folder path
-    bin_input_data(game_ids, target_dir_binned, dt=5)
+
+    status = bin_input_data(game_ids, target_dir_binned, target_dir_cumulative, dt=5, rerun=False)
+    print(status)
 
     # The function below, calculates sum of metrics and expected goals for each player and
     # saves it in the proper output_data folder path
-    calculate_cumulative_goals(game_ids, target_dir_aggregated, target_dir_cumulative)
+
+    #calculate_cumulative_goals(game_ids, target_dir_aggregated, target_dir_cumulative)
 

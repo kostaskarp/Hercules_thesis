@@ -78,6 +78,9 @@ def calculate_cumulative_goals(game_ids, target_dir_agg, target_dir_cum):
         cum_exp_goal = expected_goal_df.groupby("Player")["expGoal"].sum()
         features_df["Expected_goals"] = features_df["Player"].map(cum_exp_goal)
 
+        # adding half-time statistics for each player
+
+
         if not os.path.isdir(f"{target_dir_cum}/{game_id}"):
             os.makedirs(f"{target_dir_cum}/{game_id}")
 
