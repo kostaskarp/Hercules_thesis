@@ -224,5 +224,5 @@ def bin_input_data(game_ids, target_dir_base, target_dir_base_2, dt=5, rerun=Fal
                     float_format="%.4f",
                     index=False,
                 )
-            status = f"Successfully analysed {len(game_ids)} games."
-    return status
+            #status = f"Successfully analysed {len(game_ids)} games."
+    return "Success"
