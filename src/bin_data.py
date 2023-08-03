@@ -16,9 +16,7 @@ target_dir_events = "./src/input_data/events/"
 # detects and removes the ID of the ball
 def detect_and_remove_ball_id(locations_df):
     # detecting and removing the id of the ball
-    unique_players_per_team = locations_df.groupby(["Team"])[
-        "Player_Name"
-    ].nunique()
+    unique_players_per_team = locations_df.groupby(["Team"])["Player_Name"].nunique()
     try:
         team_ball_id = (
             unique_players_per_team.where(unique_players_per_team == 1)
@@ -27,10 +25,9 @@ def detect_and_remove_ball_id(locations_df):
         )
     except:
         raise SyntaxWarning("Ball ID was not detected..")
-    locations_df = (
-        locations_df.set_index("Team").drop(index=team_ball_id).reset_index()
-    )
+    locations_df = locations_df.set_index("Team").drop(index=team_ball_id).reset_index()
     return locations_df
+
 
 # Function that detects the 2 goalkeepers and returns a dictionary with
 # their IDs and the flag/string "Goalkeeper" as value
@@ -49,8 +46,6 @@ def detect_goalkeepers(locations_df):
     return goal_keeper_dict
 
 
-
-
 def bin_input_data(game_ids, target_dir_base, target_dir_base_2, dt=5, rerun=False):
     # we loop over the detected game IDs from the input files
     for game_id in tqdm(game_ids):
@@ -58,7 +53,11 @@ def bin_input_data(game_ids, target_dir_base, target_dir_base_2, dt=5, rerun=Fal
         # has already been done. if it has been done and we also don't
         # want to repeat the analysis then we skip (pass) this game_id
         # and give an informative message to the user
-        if os.path.isdir(f"{target_dir_base}/{game_id}") and os.path.isdir(f"{target_dir_base_2}/{game_id}") and not rerun:
+        if (
+            os.path.isdir(f"{target_dir_base}/{game_id}")
+            and os.path.isdir(f"{target_dir_base_2}/{game_id}")
+            and not rerun
+        ):
             status = "Nothing new to analyse. If you want to re-run set rerun=True."
         else:
             # In the following lines we read the data from the input folders and floor the
@@ -96,7 +95,9 @@ def bin_input_data(game_ids, target_dir_base, target_dir_base_2, dt=5, rerun=Fal
                     separator_position = np.where(dt_seconds > 200.0)[0][0]
                     clean_player_df["Half_time"] = pd.Series(
                         np.repeat("First-half", clean_player_df.shape[0])
-                    ).where(clean_player_df.index < separator_position, other="Second-half")
+                    ).where(
+                        clean_player_df.index < separator_position, other="Second-half"
+                    )
                     tmp_loc_df = pd.concat((tmp_loc_df, clean_player_df))
                     recorded_end_first_period_stamps.append(
                         clean_player_df["Timestamp"][separator_position]
@@ -105,6 +106,7 @@ def bin_input_data(game_ids, target_dir_base, target_dir_base_2, dt=5, rerun=Fal
                         clean_player_df["Timestamp"][separator_position + 1]
                     )
                 except:
+                    a = 1
                     clean_player_df["Half_time"] = pd.Series(
                         np.repeat(pd.NA, clean_player_df.shape[0])
                     )
@@ -122,7 +124,8 @@ def bin_input_data(game_ids, target_dir_base, target_dir_base_2, dt=5, rerun=Fal
             end_of_half_time = np.min(np.array(recorded_end_first_period_stamps))
             start_of_second_half = np.max(np.array(recorded_start_second_period_stamps))
             end_time = max(
-                locations_df["Timestamp"].values[-1], events_df["End_Ts (ms)"].values[-1]
+                locations_df["Timestamp"].values[-1],
+                events_df["End_Ts (ms)"].values[-1],
             )
 
             # creating the time bins for the first half
@@ -144,9 +147,11 @@ def bin_input_data(game_ids, target_dir_base, target_dir_base_2, dt=5, rerun=Fal
             locations_df_copy = locations_df.copy(deep=True)
             locations_df_copy["Bin_ind"] = inds_locations
 
-            locations_grouped_by_bin = locations_df_copy.groupby(["Player_Name", "Bin_ind"])
+            locations_grouped_by_bin = locations_df_copy.groupby(
+                ["Player_Name", "Bin_ind"]
+            )
             loc_output_df = pd.DataFrame()
-            #print(f"Calculating binned features for game {game_id} ...")
+            # print(f"Calculating binned features for game {game_id} ...")
             for player_bin_pair, group_df in locations_grouped_by_bin:
                 player_id, bin_edge = player_bin_pair
                 t_bin_start = np.around(dt_bins[bin_edge - 1] / (60.0 * 1000.0), 3)
@@ -208,7 +213,9 @@ def bin_input_data(game_ids, target_dir_base, target_dir_base_2, dt=5, rerun=Fal
                     .sum()
                     .reset_index()
                 )
-                cumulative_total_df["Half-time"] = pd.Series(np.repeat("Total", cumulative_total_df.shape[0]))
+                cumulative_total_df["Half-time"] = pd.Series(
+                    np.repeat("Total", cumulative_total_df.shape[0])
+                )
 
                 cumulative_per_halfs_df = (
                     final_grouped_by_team.drop(["Time"], axis=1)
@@ -217,7 +224,9 @@ def bin_input_data(game_ids, target_dir_base, target_dir_base_2, dt=5, rerun=Fal
                     .reset_index()
                 )
 
-                joint_cumulative_df = pd.concat((cumulative_total_df, cumulative_per_halfs_df)).sort_values("Player")
+                joint_cumulative_df = pd.concat(
+                    (cumulative_total_df, cumulative_per_halfs_df)
+                ).sort_values("Player")
 
                 joint_cumulative_df.to_csv(
                     f"{target_dir_base_2}/{game_id}/{game_id}_{team_id}",

@@ -32,7 +32,7 @@ if __name__ == "__main__":
     # for both locations and event files and also the metrics that were derived
     # based on them. It saves the outputs in the proper output_data folder path
 
-    status = bin_input_data(game_ids, target_dir_binned, target_dir_cumulative, dt=5, rerun=False)
+    status = bin_input_data(game_ids, target_dir_binned, target_dir_cumulative, dt=5, rerun=True)
     print(status)
 
     # The function below, calculates sum of metrics and expected goals for each player and
