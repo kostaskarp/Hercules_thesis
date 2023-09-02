@@ -1,4 +1,5 @@
 import os
+
 import pandas as pd
 
 
@@ -54,18 +55,20 @@ def ExpectedGoals(Xloc, Yloc, Max_X=52.5):
 
 
 def eventWork():
-    SOURCE_DIRECTORY = '/home/hercules/Documents/Ptyxiaki/Sources/events/'
-    TARGET_DIRECTORY = '/home/hercules/Documents/Ptyxiaki/Proccesed/xG_per_action/'
+    SOURCE_DIRECTORY = "/home/hercules/Documents/Ptyxiaki/Sources/events/"
+    TARGET_DIRECTORY = "/home/hercules/Documents/Ptyxiaki/Proccesed/xG_per_action/"
     eventFiles = os.listdir(SOURCE_DIRECTORY)
     for fileName in eventFiles:
         goals = []
         df = pd.read_csv(SOURCE_DIRECTORY + fileName)
         for i, row in df.iterrows():
             # print(row['Start_Ts (ms)'],row['End_Ts (ms)'],row['X'],row['Y'],row['Player'],row['Event'])
-            goals.append(ExpectedGoals(row['X'], row['Y']))
-        df['expGoal'] = goals  # adds an "expGoal" column
-        df = df[df['Event'] == 'Pass']  # keeps only the pass actions
-        df.to_csv(TARGET_DIRECTORY + fileName, )
+            goals.append(ExpectedGoals(row["X"], row["Y"]))
+        df["expGoal"] = goals  # adds an "expGoal" column
+        df = df[df["Event"] == "Pass"]  # keeps only the pass actions
+        df.to_csv(
+            TARGET_DIRECTORY + fileName,
+        )
 
 
 """ Creates files with the passing actions only and their xG rating"""

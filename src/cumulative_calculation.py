@@ -1,7 +1,6 @@
 import os
 
 import pandas as pd
-
 from tqdm import tqdm
 
 from src.expected_goals.expected_goal import ExpectedGoals
@@ -48,7 +47,9 @@ def calculate_cumulative_goals(game_ids, target_dir_agg, target_dir_cum):
             )
         except:
             raise Warning("Ball ID was not detected..")
-        locations_df = locations_df.set_index("Team").drop(index=team_ball_id).reset_index()
+        locations_df = (
+            locations_df.set_index("Team").drop(index=team_ball_id).reset_index()
+        )
 
         print(f"Calculating expected goals for game {game_id} ...")
         expected_goal_df = add_expected_goal(events_df)
@@ -61,7 +62,6 @@ def calculate_cumulative_goals(game_ids, target_dir_agg, target_dir_cum):
         #     expected_goal_df.set_index(["Player", "End_Ts (ms)"])["expGoal"]
         # )
         # aggregate_df.to_csv(f"{target_dir_agg}/{game_id}_aggregate.csv", index=False)
-
 
         # first we group the dataframe by the combination of player name and team name
         grouped_df = locations_df.groupby(["Player_Name", "Team"])
@@ -80,12 +80,13 @@ def calculate_cumulative_goals(game_ids, target_dir_agg, target_dir_cum):
 
         # adding half-time statistics for each player
 
-
         if not os.path.isdir(f"{target_dir_cum}/{game_id}"):
             os.makedirs(f"{target_dir_cum}/{game_id}")
 
         grouped_by_team = features_df.groupby("Team")
         for team_id, team_df in grouped_by_team:
             team_df.to_csv(
-                f"{target_dir_cum}/{game_id}/{game_id}_{team_id}_cumulative.csv", float_format="%.4f", index=False
+                f"{target_dir_cum}/{game_id}/{game_id}_{team_id}_cumulative.csv",
+                float_format="%.4f",
+                index=False,
             )

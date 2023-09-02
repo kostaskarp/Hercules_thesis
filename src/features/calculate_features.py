@@ -1,6 +1,5 @@
-import pandas as pd
 import numpy as np
-
+import pandas as pd
 
 # Generalised functions
 
@@ -83,12 +82,13 @@ def total_distance(input_dict: dict, input_df: pd.DataFrame) -> dict:
     input_dict.update({"total_distance": tot_distance})
     return input_dict
 
+
 def total_time_played(input_dict: dict, input_df: pd.DataFrame) -> dict:
-    tot_time_m = ((input_df.dropna().shape[0]-2)*0.1)/60.
+    tot_time_m = ((input_df.dropna().shape[0] - 2) * 0.1) / 60.0
     iis = np.arange(1, input_df.dropna().shape[0])
     time_series = input_df["Timestamp"].values
-    total_time_played = np.sum(time_series[iis] - time_series[iis-1])
-    input_dict.update({"total_time_played [m]": (total_time_played*1e-3)/60.})
+    total_time_played = np.sum(time_series[iis] - time_series[iis - 1])
+    input_dict.update({"total_time_played [m]": (total_time_played * 1e-3) / 60.0})
     return input_dict
 
 

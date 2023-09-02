@@ -1,12 +1,11 @@
 import os.path
 
 import pandas as pd
-
-from src.features.calculate_features import *
 from tqdm import tqdm
 
 from src.cumulative_calculation import *
 from src.expected_goals.expected_goal import ExpectedGoals
+from src.features.calculate_features import *
 
 target_dir_locations = "./src/input_data/locations/"
 target_dir_events = "./src/input_data/events/"
